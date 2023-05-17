@@ -4,7 +4,7 @@ PSQL="psql --username=freecodecamp --dbname=number_guess -t --no-align -c"
 
 MAIN()
 {
-echo -e "Enter your username:"
+echo -e " \nEnter your username:"
 read USERNAME
 USER_ID=$($PSQL "select user_id from users where username='$USERNAME'")
 
@@ -23,7 +23,33 @@ NUMBER_OF_GUESSES=0
 
 echo -e "Guess the secret number between 1 and 1000:"
 
-GUESS
+read USER_GUESS
+
+until [[ "$USER_GUESS" -eq "$CORRECT_NUMBER" ]]
+do
+  if ! [[ $USER_GUESS =~ ^[0-9]+$ ]] ; 
+  then 
+    echo "That is not an integer, guess again:"
+    read USER_GUESS
+    let "NUMBER_OF_GUESSES+=1"
+  else
+    if [[ "$USER_GUESS" -gt "CORRECT_NUMBER" ]]
+    then
+      echo "It's lower than that, guess again:";
+      read USER_GUESS
+      let "NUMBER_OF_GUESSES+=1"
+    fi
+
+    if [[ "$USER_GUESS" -lt "CORRECT_NUMBER" ]]
+    then
+      echo "It's higher than that, guess again:";
+      read USER_GUESS
+      let "NUMBER_OF_GUESSES+=1"
+    fi
+  fi
+done
+
+let "NUMBER_OF_GUESSES+=1"
 
 if [[ "$USER_GUESS" -eq "$CORRECT_NUMBER" ]]
   then
@@ -31,35 +57,10 @@ if [[ "$USER_GUESS" -eq "$CORRECT_NUMBER" ]]
     INSERT_GAME=$($PSQL "insert into games(user_id, number_of_guesses) values($USER_ID, $NUMBER_OF_GUESSES)")
     if [[ $INSERT_GAME == "INSERT 0 1" ]]
     then
-      echo "You guessed it in $NUMBER_OF_GUESSES tries. The secret number was $CORRECT_NUMBER. Nice job!"
+      echo -e "\nYou guessed it in $NUMBER_OF_GUESSES tries. The secret number was $CORRECT_NUMBER. Nice job!"
     fi
   fi
 
-}
-
-GUESS()
-{
-  read USER_GUESS
-
-  if ! [[ $USER_GUESS =~ ^[0-9]+$ ]] ; 
-  then 
-    echo "That is not an integer, guess again:"
-    GUESS
-  else
-    if [[ "$USER_GUESS" -gt "CORRECT_NUMBER" ]]
-    then
-      let "NUMBER_OF_GUESSES+=1"
-      echo "It's lower than that, guess again:";
-      GUESS
-    fi
-
-    if [[ "$USER_GUESS" -lt "CORRECT_NUMBER" ]]
-    then
-      let "NUMBER_OF_GUESSES+=1"
-      echo "It's higher than that, guess again:";
-      GUESS
-    fi
-  fi
 }
 
 INSERT_USER()
