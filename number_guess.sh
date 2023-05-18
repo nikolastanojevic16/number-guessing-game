@@ -40,16 +40,16 @@ do
   else
     if [[ "$USER_GUESS" -gt "CORRECT_NUMBER" ]]
     then
+      let "NUMBER_OF_GUESSES+=1"
       echo "It's lower than that, guess again:";
       read USER_GUESS
-      let "NUMBER_OF_GUESSES+=1"
     fi
 
     if [[ "$USER_GUESS" -lt "CORRECT_NUMBER" ]]
     then
+      let "NUMBER_OF_GUESSES+=1"
       echo "It's higher than that, guess again:";
       read USER_GUESS
-      let "NUMBER_OF_GUESSES+=1"
     fi
 
     if [[ "$USER_GUESS" -eq "$CORRECT_NUMBER" ]]
